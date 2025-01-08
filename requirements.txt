@@ -1,0 +1,15 @@
+astropy
+pandas
+langchain-experimental
+langchain-groq
+langchain-community
+google-generativeai
+requests
+typing-extensions
+streamlit
+numpy
+matplotlib
+seaborn
+plotly
+wordcloud
+Pillow
