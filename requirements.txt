@@ -1,4 +1,4 @@
-astropy
+astrapy
 pandas
 langchain-experimental
 langchain-groq
