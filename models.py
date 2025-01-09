@@ -371,6 +371,8 @@ def photo_flow(image_path) :
    either benifical or problemati based on inisghts from intenet  
 
    !!" note at max do only one search , call the tool only one time and whatever you find return it as the final answer"
+
+   if you don't find any thing that helps just write whatever you found
    """)
 
    internet_insight_2 = internet_agent.invoke(f"""                        
@@ -380,6 +382,8 @@ def photo_flow(image_path) :
    which lies in same domain and user can create video on it  
 
    !!" note at max do only one search , call the tool only one time and whatever you find return it as the final answer"
+
+   if you don't find any thing that helps just write whatever you found
    """)
    final_response = model.generate_content(f"""
 
