@@ -13,6 +13,7 @@ import json
 import typing_extensions as typing
 import requests
 import uuid 
+import concurrent.futures
 import base64 
 
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
@@ -289,17 +290,58 @@ def run_flow(prompt) :
    result = json.loads(result.candidates[0].content.parts[0].text)
 
    print(result)
-   answer_database = db_bot(result[1]['prompt'])
-   answer_internet = internet_agent.run(result[2]['prompt'] + " note at max do only one search , call the tool only one time and whatever you find return it as the final answer")
-   answer_rag = rag_bot(result[3]['prompt'])
-   llm_agent.invoke(f"generate a {result[4]['prompt']} by seaborn graph and store in ./data as 'graph.jpg' in static image format")
-   answer =  {
-     'database' : answer_database , 
-     'internet' : answer_internet , 
-     'rag' : answer_rag ,
-     'graph' : './data/graph.jpg'  , 
-     'prompts' : result
-   }
+
+
+   answer_database = "no information, some error occurred"
+   answer_internet = "no information, some error occurred"
+   answer_rag = "no information, some error occurred"
+   graph_path = None
+
+   def fetch_database():
+        try:
+            return db_bot(result[1]['prompt'])
+        except Exception as e:
+            return f"Error fetching database: {e}"
+
+   def fetch_internet():
+        try:
+            return internet_agent.run(result[2]['prompt'] + " note at max do only one search, call the tool only one time and whatever you find return it as the final answer")
+        except Exception as e:
+            return f"Error fetching internet data: {e}"
+
+   def fetch_rag():
+        try:
+            return rag_bot(result[3]['prompt'])
+        except Exception as e:
+            return f"Error fetching RAG data: {e}"
+
+   def generate_graph():
+        try:
+            llm_agent.invoke(f"generate a {result[4]['prompt']} by seaborn graph and store in ./data as 'graph.jpg' in static image format")
+            return './data/graph.jpg'
+        except Exception as e:
+            return f"Error generating graph: {e}"
+
+   with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_database = executor.submit(fetch_database)
+        future_internet = executor.submit(fetch_internet)
+        future_rag = executor.submit(fetch_rag)
+        future_graph = executor.submit(generate_graph)
+
+        # Collect results
+        answer_database = future_database.result()
+        answer_internet = future_internet.result()
+        answer_rag = future_rag.result()
+        graph_path = future_graph.result()
+
+   answer = {
+        'database': answer_database,
+        'internet': answer_internet,
+        'rag': answer_rag,
+        'graph': "./data/graph.jpg",
+        'prompts': result
+    }
+
    final_response = model.generate_content(f"""
 
    following are some insight : 
