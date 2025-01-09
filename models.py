@@ -137,8 +137,9 @@ def photo_bot(image_path):
 def video_bot(video_file_path):
    genai.configure(api_key="AIzaSyC9KkbgmUDIB8BbiaKDmjrxTVI1omRh-TQ")
    print(f"Uploading file...")
-   time.sleep(10)
+   
    video_file = genai.upload_file(path=video_file_path)
+   time.sleep(10)
    print(f"Completed upload: {video_file.uri}")
    prompt = """
    you are an social media infulencer do the following : 
