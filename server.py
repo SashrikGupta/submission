@@ -10,6 +10,7 @@ from models import run_flow , photo_flow , video_flow
 import os 
 from PIL import Image 
 import base64
+import time
 
 # Initialize the Astra client
 client = DataAPIClient("AstraCS:zgJSwvWzsZXjawoPFyNcXMNS:9eed3b61fbbf2bf615a766b0a661bf597de4340be47436100e3e84fd1b38fa14")
@@ -44,20 +45,6 @@ if "Post_Timestamp" in df.columns:
     # Sort by timestamp if needed
     df = df.sort_values(by="Post_Timestamp")
 
-# Define a function to simulate chatbot interaction
-def chatbot_response(user_input, file=None):
-    """Simulate a chatbot response based on user input."""
-    # Example simulated response
-    response = {
-        "engagement": {
-            "likes": np.random.randint(50, 500, 10),
-            "comments": np.random.randint(10, 200, 10),
-            "shares": np.random.randint(5, 100, 10),
-            "dates": pd.date_range(start="2023-01-01", periods=10).tolist(),
-        },
-        "summary": "Your engagement has been consistent, with an average of 250 likes, 50 comments, and 30 shares per post."
-    }
-    return response
 
 # Streamlit app setup
 st.set_page_config(page_title="Chai Analytics", layout="wide", page_icon="📊")
@@ -68,9 +55,9 @@ with col2:
     st.title(" Chai Analytics")
 
 # Page navigation
-page = st.sidebar.selectbox("Choose a page:", ["Chat Interaction", "Engagement Analytics" , "image analytics" , "reel analytics"])
+page = st.sidebar.selectbox("Choose a page:", ["Chat Interaction", "Engagement Analytics" , "Image analytics" , "Reel analytics"])
 
-if page == "image analytics":
+if page == "Image analytics":
     st.markdown(
         """
         <style>
@@ -102,6 +89,32 @@ if page == "image analytics":
     # Upload file section
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
     if uploaded_file:
+
+        # Initialize the progress bar
+        progress_bar = st.progress(0)  # Starting at 0%
+        status_text = st.empty()  # Placeholder for current step status
+
+        # List of steps
+        steps = [
+            " Image uploaded successfully",
+            " Image processing started",
+            " Image processing completed",
+            " Analysis completed",
+        ]
+
+        # Iterate over the steps
+        for i, step in enumerate(steps[:-2]):
+            # Update the status text
+            status_text.markdown(f"**Step {i + 1}**: {step}")
+
+            # Update the progress bar
+            progress_bar.progress((i + 1) / len(steps))
+
+            # Add a short sleep to simulate processing time
+            time.sleep(4)
+
+        
+
         # Create uploads directory if it doesn't exist
         os.makedirs("uploads", exist_ok=True)
 
@@ -114,7 +127,24 @@ if page == "image analytics":
         image = Image.open(image_path)
 
         # Analyze the image
-        answer = photo_flow(image_path)
+        with st.spinner("Analyzing your image..."):
+            answer = photo_flow(image_path)
+            finish_loader = True
+
+        if finish_loader :
+                for i, step in enumerate(steps[:-2]):
+                    # Update the status text
+                    status_text.markdown(f"**Step {i + 1 + len(steps[:-2])}**: {step}")
+
+                    # Update the progress bar
+                    progress_bar.progress((i + 1) / len(steps))
+
+                    # Add a short sleep to simulate processing time
+                    time.sleep(4)
+        
+            # Remove the progress bar and status text
+        progress_bar.empty()
+        status_text.empty()
 
         # Convert the image to Base64
         base64_image = image_to_base64(image_path)
@@ -137,7 +167,7 @@ if page == "image analytics":
                 f"<div class='fixed-height'>{answer.text}</div>",
                 unsafe_allow_html=True
             )
-if page == "reel analytics":
+if page == "Reel analytics":
     st.markdown(
         """
         <style>
@@ -169,6 +199,35 @@ if page == "reel analytics":
     # Upload file section
     uploaded_video = st.file_uploader("Upload a video", type=["mp4", "avi", "mov", "mkv"])
     if uploaded_video:
+
+        # Initialize the progress bar
+        progress_bar = st.progress(0)  # Starting at 0%
+        status_text = st.empty()  # Placeholder for current step status
+
+        # List of steps
+        steps = [
+            " Video uploaded successfully",
+            " Video processing started",
+            " Video processing completed",
+            " Analysis completed",
+
+            ]
+        
+        # Iterate over the steps
+        for i, step in enumerate(steps[:-2]):
+            # Update the status text
+            status_text.markdown(f"**Step {i + 1}**: {step}")
+
+            # Update the progress bar
+            progress_bar.progress((i + 1) / len(steps))
+
+            # Add a short sleep to simulate processing time
+            time.sleep(4)
+        
+        
+
+
+
         # Create uploads directory if it doesn't exist
         os.makedirs("uploads", exist_ok=True)
 
@@ -178,11 +237,29 @@ if page == "reel analytics":
             f.write(uploaded_video.read())
 
         # Analyze the video
-        answer = video_flow(video_path)
+        with st.spinner("Analyzing your video..."):
+            answer = video_flow(video_path)
+            finish_loader = True
 
         # Convert the video to Base64
         base64_video = video_to_base64(video_path)
 
+        if finish_loader :
+            for i, step in enumerate(steps[:-2]):
+            # Update the status text
+                status_text.markdown(f"**Step {i + 1 + len(steps[:-2])}**: {step}")
+
+            # Update the progress bar
+                progress_bar.progress((i + 1) / len(steps))
+
+            # Add a short sleep to simulate processing time
+                time.sleep(4)
+        
+        # Remove the progress bar and status text
+        progress_bar.empty()
+        status_text.empty()
+
+        
         # Layout the UI
         col1, col2 = st.columns(2, gap="large")
 
@@ -213,10 +290,52 @@ if page == "Chat Interaction":
     user_input = st.text_input("Type your message here:", placeholder="Ask about your account analytics...")
 
     if st.button("Send"):
+
+        # Initialize the progress bar
+        progress_bar = st.progress(0)  # Starting at 0%
+        status_text = st.empty()  # Placeholder for current step status
+
+        # List of steps
+        steps = [
+            "User input received",
+            "Chatbot processing started",
+            "Chatbot processing completed",
+            "Analysis completed",
+        ]
+
+        # Iterate over the steps
+        for i, step in enumerate(steps[:-2]):
+            # Update the status text
+            status_text.markdown(f"**Step {i + 1 }**: {step}")
+
+            # Update the progress bar
+            progress_bar.progress((i + 1) / len(steps))
+
+            # Add a short sleep to simulate processing time
+            time.sleep(4)
+        
+
         if user_input.strip():
             with st.spinner("Chatbot is analyzing your input..."):
                 # Calling the custom function and storing the result
                 answer = run_flow(user_input)
+                finish_loader = True
+            
+            if finish_loader :
+                for i, step in enumerate(steps[:-2]):
+                    # Update the status text
+                    status_text.markdown(f"**Step {i + 1 + len(steps[:-2])}**: {step}")
+
+                    # Update the progress bar
+                    progress_bar.progress((i + 1) / len(steps))
+
+                    # Add a short sleep to simulate processing time
+                    time.sleep(4)
+        
+            # Remove the progress bar and status text
+            progress_bar.empty()
+            status_text.empty()
+            
             
             # Rendering the output in markdown format
             st.subheader("Graphical Analysis")
