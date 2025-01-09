@@ -15,6 +15,7 @@ import requests
 import uuid 
 import concurrent.futures
 import base64 
+import time 
 
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
 LANGFLOW_ID = "e20db916-b085-4204-bf27-6554b022d84c"
@@ -136,6 +137,7 @@ def photo_bot(image_path):
 def video_bot(video_file_path):
    genai.configure(api_key="AIzaSyC9KkbgmUDIB8BbiaKDmjrxTVI1omRh-TQ")
    print(f"Uploading file...")
+   time.sleep(10)
    video_file = genai.upload_file(path=video_file_path)
    print(f"Completed upload: {video_file.uri}")
    prompt = """
